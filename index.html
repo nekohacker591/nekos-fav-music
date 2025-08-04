@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NekoCloud - Likes Player</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nekohacker591/nekohackers-music/refs/heads/main/nekohacker%20profile%20picture.png" type="image/png" />
+
+    <!-- Meta Tags -->
+    <meta name="title" content="NekoCloud" />
+    <meta name="description" content="A custom, high-performance frontend for browsing SoundCloud likes." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="NekoCloud" />
+    <meta property="og:description" content="A custom, high-performance frontend for browsing SoundCloud likes." />
+    <meta property="og:image" content="https://i.imgur.com/ClMFeop.png" />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="NekoCloud" />
+    <meta property="twitter:description" content="A custom, high-performance frontend for browsing SoundCloud likes." />
+    <meta property="twitter:image" content="https://i.imgur.com/ClMFeop.png" />
+
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div id="loading-overlay">
+        <div class="loading-text">LOADING LIKES...</div>
+    </div>
+
+    <div id="app-wrapper" style="display: none;">
+        <header id="app-header">
+            <h1>NekoCloud Likes</h1>
+            <div class="controls-bar">
+                <input type="text" id="search-input" placeholder="Search by title, artist, genre, or tag...">
+                <select id="sort-select">
+                    <option value="liked_on_desc">Sort by: Liked Date (Newest)</option>
+                    <option value="liked_on_asc">Sort by: Liked Date (Oldest)</option>
+                    <option value="plays_desc">Sort by: Plays (Most)</option>
+                    <option value="likes_desc">Sort by: Likes (Most)</option>
+                    <option value="duration_desc">Sort by: Duration (Longest)</option>
+                    <option value="duration_asc">Sort by: Duration (Shortest)</option>
+                </select>
+            </div>
+        </header>
+
+        <main id="track-grid-container">
+            <!-- Track cards will be injected here by JavaScript -->
+        </main>
+
+        <footer id="persistent-player" class="hidden">
+            <div class="player-content">
+                <div class="now-playing-info">
+                    <img src="https://i.imgur.com/ClMFeop.png" alt="Track Artwork" class="player-artwork">
+                    <div class="track-details">
+                        <span class="player-title">No track selected</span>
+                        <span class="player-artist">...</span>
+                    </div>
+                </div>
+
+                <div class="player-controls">
+                    <button id="prev-btn" class="control-btn" title="Previous Track"><span class="icon">⏮</span></button>
+                    <button id="play-pause-btn" class="control-btn play" title="Play/Pause"><span class="icon"></span></button>
+                    <button id="next-btn" class="control-btn" title="Next Track"><span class="icon">⏭</span></button>
+                </div>
+
+                <div class="progress-section">
+                    <span class="current-time">0:00</span>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-filled"></div>
+                    </div>
+                    <span class="duration">0:00</span>
+                </div>
+
+                <div class="volume-section">
+                    <button id="mute-btn" class="control-btn" title="Mute/Unmute"><span class="icon"></span></button>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.75" title="Volume">
+                </div>
+
+                <div class="extra-actions">
+                     <button id="details-btn" class="control-btn" title="View Track Details"><span class="icon">ℹ️</span></button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div id="track-detail-modal" class="hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <div class="modal-body">
+                <img src="" alt="Track Artwork" class="modal-artwork">
+                <h2 class="modal-title"></h2>
+                <h3 class="modal-artist"></h3>
+                <div class="modal-stats">
+                    <span><span class="icon">▶️</span> <span id="modal-plays"></span></span>
+                    <span><span class="icon">❤️</span> <span id="modal-likes"></span></span>
+                    <span><span class="icon">💬</span> <span id="modal-comments"></span></span>
+                </div>
+                <div class="modal-tags"></div>
+                <h4>Description</h4>
+                <div class="modal-description"></div>
+                <div class="modal-actions">
+                    <a href="#" id="modal-soundcloud-link" target="_blank" rel="noopener noreferrer" class="action-link">View on SoundCloud</a>
+                    <a href="#" id="modal-purchase-link" target="_blank" rel="noopener noreferrer" class="action-link hidden"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

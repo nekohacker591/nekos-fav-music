@@ -39,6 +39,7 @@
                     <option value="duration_desc">Sort by: Duration (Longest)</option>
                     <option value="duration_asc">Sort by: Duration (Shortest)</option>
                 </select>
+                <button id="shuffle-btn" title="Shuffle current track list">🔀 Shuffle</button>
             </div>
         </header>
 
@@ -76,7 +77,8 @@
                 </div>
 
                 <div class="extra-actions">
-                     <button id="details-btn" class="control-btn" title="View Track Details"><span class="icon">ℹ️</span></button>
+                    <button id="repeat-btn" class="control-btn" title="Repeat Track"><span class="icon">🔁</span></button>
+                    <button id="details-btn" class="control-btn" title="View Track Details"><span class="icon">ℹ️</span></button>
                 </div>
             </div>
         </footer>
@@ -84,7 +86,7 @@
 
     <div id="track-detail-modal" class="hidden">
         <div class="modal-content">
-            <button class="modal-close-btn">&times;</button>
+            <button class="modal-close-btn">×</button>
             <div class="modal-body">
                 <img src="" alt="Track Artwork" class="modal-artwork">
                 <h2 class="modal-title"></h2>

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allTracks: [],
         filteredTracks: [],
         currentTrackIndex: -1,
+        currentPlayableUrl: null, // To store the temporary download URL
         isPlaying: false,
         audio: new Audio(),
         lastVolume: 0.75,
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         prevBtn: document.getElementById('prev-btn'),
         nextBtn: document.getElementById('next-btn'),
         repeatBtn: document.getElementById('repeat-btn'),
+        downloadBtn: document.getElementById('download-btn'), // New download button
         progressFilled: document.querySelector('.progress-bar-filled'),
         progressContainer: document.querySelector('.progress-bar-container'),
         currentTimeEl: document.querySelector('.current-time'),
@@ -103,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function playTrack(trackIndexInFilteredList) {
         try {
             state.currentTrackIndex = trackIndexInFilteredList;
+            state.currentPlayableUrl = null; // Reset previous download URL
             const track = state.filteredTracks[state.currentTrackIndex];
             if (!track) throw new Error(`FAILED to get track object`);
             updatePlayerUI(track);
@@ -116,12 +119,60 @@ document.addEventListener('DOMContentLoaded', () => {
             const soundcloudData = await response.json();
             const playableUrl = soundcloudData.url;
             if (!playableUrl) throw new Error("API response via proxy did not contain a playable 'url'.");
+            
+            state.currentPlayableUrl = playableUrl; // Save the URL for downloading
             state.audio.src = playableUrl;
             await state.audio.play();
         } catch (error) {
             console.error("Fucking hell, the play process failed. Here's the error:", error);
         }
     }
+
+    // --- NEW DOWNLOAD FUNCTION ---
+    async function downloadCurrentTrack() {
+        if (state.currentTrackIndex === -1 || !state.currentPlayableUrl) {
+            alert("No track is available to download. Please play a track first.");
+            return;
+        }
+    
+        const track = state.filteredTracks[state.currentTrackIndex];
+        const downloadBtnIcon = dom.downloadBtn.querySelector('.icon');
+        downloadBtnIcon.textContent = '…'; // Show a loading state
+        dom.downloadBtn.disabled = true;
+    
+        try {
+            // Fetch the audio data as a binary blob
+            const response = await fetch(state.currentPlayableUrl);
+            if (!response.ok) throw new Error('Network response for download was not ok.');
+            const blob = await response.blob();
+    
+            // Create a temporary link to trigger the download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            
+            // Sanitize the filename to remove illegal characters
+            const fileName = `${track.artist} - ${track.title}.mp3`.replace(/[<>:"/\\|?*]+/g, '_');
+            a.download = fileName;
+            
+            document.body.appendChild(a);
+            a.click();
+    
+            // Clean up the temporary URL and link
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+    
+        } catch (err) {
+            console.error("Download failed:", err);
+            alert("Failed to download the track. See console for details.");
+        } finally {
+            // Restore the button to its normal state
+            downloadBtnIcon.textContent = '⬇️';
+            dom.downloadBtn.disabled = false;
+        }
+    }
+
 
     function togglePlayPause() {
         if (state.audio.paused) {
@@ -182,13 +233,16 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.playPauseBtn.addEventListener('click', togglePlayPause);
         dom.nextBtn.addEventListener('click', playNext);
         dom.prevBtn.addEventListener('click', playPrev);
+        dom.downloadBtn.addEventListener('click', downloadCurrentTrack); // New download listener
 
         state.audio.addEventListener('play', () => { state.isPlaying = true; dom.playPauseBtn.innerHTML = `<span class="icon">⏸</span>`; });
         state.audio.addEventListener('pause', () => { state.isPlaying = false; dom.playPauseBtn.innerHTML = `<span class="icon">▶️</span>`; document.title = "NekoCloud"; });
         state.audio.addEventListener('ended', () => { if (!state.isLooping) playNext(); });
         state.audio.addEventListener('timeupdate', () => {
-            const percent = (state.audio.currentTime / state.audio.duration) * 100;
-            dom.progressFilled.style.width = `${percent}%`;
+            if (!isNaN(state.audio.duration)) {
+                const percent = (state.audio.currentTime / state.audio.duration) * 100;
+                dom.progressFilled.style.width = `${percent}%`;
+            }
             dom.currentTimeEl.textContent = formatTime(state.audio.currentTime);
         });
         
